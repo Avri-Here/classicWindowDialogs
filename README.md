@@ -27,6 +27,7 @@ The dialogs mimic the visual style, layout, and sound effects of legacy Windows 
 
 ```javascript
 
+
 const { showConfirmDialog } = require('electron-classic-window-dialog');
 
 const confirmDialog = {
@@ -58,6 +59,7 @@ try {
 
 
 ```javascript
+
 
 const { showLoadingDialog } = require('electron-classic-window-dialog');
 
@@ -109,5 +111,5 @@ try {
 ## Links
 
 - [GitHub ](https://github.com/Avri-Here/classicWindowDialogs)
-- [NPM ](https://www.npmjs.com/package/windows-dialogs)
+- [NPM ](https://www.npmjs.com/package/electron-classic-window-dialog)
 
