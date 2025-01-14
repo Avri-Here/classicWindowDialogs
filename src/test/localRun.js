@@ -42,10 +42,10 @@
 
 
 
-const { app } = require('electron');
-const { showLoadingDialog } = require('../app');
-// const { showLoadingDialog } = require('electron-classic-window-dialog');
 
+
+
+// const { showLoadingDialog } = require('electron-classic-window-dialog');
 
 const winXpLoading = {
     pageStyle: 'winXp',
@@ -71,20 +71,35 @@ const win10Loading = {
 };
 
 
-
+const { join } = require('path');
+const { app, BrowserWindow } = require('electron');
+const { showLoadingDialog } = require('../app');
 
 (async () => {
 
     try {
-
         await app.whenReady();
 
-        const winXpLoad = await showLoadingDialog(winXpLoading);
-        await showLoadingDialog(vistaLoading);
-        await showLoadingDialog(win8Loading);
+       new BrowserWindow({
+            width: 80, height: 280, 
+            roundedCorners: true, show: true,
+            icon: join(__dirname, `icon.ico`),
+            frame: false, hasShadow: true, title: 'pageStyle',
+            resizable: false, maximizable: false, skipTaskbar: false,
+        });
+        
+        const mainWindow = new BrowserWindow({
+            width: 80, height: 80, 
+            roundedCorners: true, show: true,
+            icon: join(__dirname, `icon.ico`),
+            frame: false, hasShadow: true, title: 'pageStyle',
+            resizable: false, maximizable: false, skipTaskbar: false,
+        });
+
         await showLoadingDialog(win10Loading);
 
-        // winXpLoad.closeLoadDialog();
+
+
 
 
     } catch (e) {
@@ -103,3 +118,8 @@ const win10Loading = {
 
 })();
 
+// const winXpLoad = await showLoadingDialog(winXpLoading);
+// await showLoadingDialog(vistaLoading);
+// await showLoadingDialog(win8Loading);
+
+// winXpLoad.closeLoadDialog();

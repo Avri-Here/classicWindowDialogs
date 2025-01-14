@@ -87,6 +87,7 @@ const showLoadingDialog = (dialogOptions = {}) => {
     return new Promise((resolve) => {
 
         const mainWindow = new BrowserWindow({
+            skipTaskbar: false, parent: null,
             width, height, alwaysOnTop: true,
             roundedCorners: true, show: false,
             resizable: false, maximizable: false, icon,
@@ -107,11 +108,41 @@ const showLoadingDialog = (dialogOptions = {}) => {
             y: Math.round((screenHeight - height) / 2)
         });
 
+        const otherWindows = BrowserWindow.getAllWindows().filter(win => win !== mainWindow);
+
+
+        otherWindows.forEach(win => {
+
+            win.setSkipTaskbar(true);
+            mainWindow.setParentWindow(null);
+
+        });
+
+        mainWindow.on('close', () => {
+            
+            const otherWindows = BrowserWindow.getAllWindows().filter(win => win !== mainWindow);
+
+            otherWindows.forEach(win => {
+
+                win.setSkipTaskbar(false);
+
+            });
+        });
+
+        // console.log(otherWindows);
+
+        // visibleWin.setSkipTaskbar(true);
+
+        // if (getVisibleWin) {
+        //     mainWindow.setIcon(icon); // Temporarily change the mainWindow icon
+        // }
+
         mainWindow.webContents.on('did-finish-load', () => {
 
             process.env.dialogTest && mainWindow.webContents.openDevTools({ mode: 'undocked' });
 
             mainWindow.show();
+            mainWindow.focus();
 
             if (dialogOptions.timeOut) {
 
@@ -137,6 +168,10 @@ const showLoadingDialog = (dialogOptions = {}) => {
                         if (!mainWindow.isDestroyed()) {
                             mainWindow.close();
                         };
+
+                        if (mainWindow) {
+                            mainWindow.setIcon(originalIconPath); // Restore the original icon
+                        }
 
                     }, fadeOutInterval);
 
