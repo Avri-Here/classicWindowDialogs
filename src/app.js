@@ -74,7 +74,7 @@ const showConfirmDialog = (dialogOptions = {}) => {
 };
 
 
-const showLoadingDialog = (dialogOptions = {}) => {
+const showLoadingDialog = (dialogOptions = {}, mainWindow4) => {
 
 
     const width = 440, height = 230;
@@ -87,11 +87,11 @@ const showLoadingDialog = (dialogOptions = {}) => {
     return new Promise((resolve) => {
 
         const mainWindow = new BrowserWindow({
-            width, height, alwaysOnTop: true,
-            skipTaskbar: false,
             roundedCorners: true, show: false,
             resizable: false, maximizable: false,
-            icon,
+            width, height, alwaysOnTop: true, skipTaskbar: false,
+            icon, parent: mainWindow4,
+            modal: true,
             frame: false, hasShadow: true, title: pageStyle,
             webPreferences: {
                 sandbox: false, nodeIntegration: true, preload,
@@ -99,7 +99,6 @@ const showLoadingDialog = (dialogOptions = {}) => {
             }
         });
 
-        // mainWindow.setFullScreen(true);
         mainWindow.setAppDetails({
             appIconPath: icon,
             appId: 'avri.com.classic.window.dialog'
@@ -123,42 +122,26 @@ const showLoadingDialog = (dialogOptions = {}) => {
 
             mainWindow.show();
             mainWindow.focus();
+            const activeWindows = BrowserWindow.getAllWindows();
+            console.log(activeWindows.length);
 
             mainWindow.setOverlayIcon(icon || null, '...');
 
 
 
             const closeDialogMs = dialogOptions.timeOut;
+
             if (closeDialogMs) {
 
 
                 setTimeout(() => {
 
-                    // let opacity = 1;
-                    // const fadeOutInterval = 10, fadeStep = 0.15;
-
-                    // const fadeOut = setInterval(() => {
-
-                    // if (opacity > 0) {
-
-                    //     opacity -= fadeStep;
-                    //     mainWindow.setOpacity(opacity);
-                    //     return;
-                    // };
-
-                    // clearInterval(fadeOut);
-
 
                     if (!mainWindow.isDestroyed()) {
                         mainWindow.close();
+                        resolve('timeOutResolved');
 
                     };
-
-                    // if (mainWindow) {
-                    // mainWindow.setIcon(originalIconPath);
-                    // }
-
-                    // }, fadeOutInterval);
 
                 }, closeDialogMs);
             };
@@ -184,6 +167,14 @@ module.exports = { showConfirmDialog, showLoadingDialog };
 
 
 
+
+// mainWindow.setFullScreen(true);
+
+// if (mainWindow) {
+// mainWindow.setIcon(originalIconPath);
+// }
+
+// }, fadeOutInterval);
 
 
 // const dataURL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==';

@@ -91,23 +91,18 @@ const { app, BrowserWindow } = require('electron');
 
         // await new Promise((resolve) => setTimeout(resolve, 20000));
 
-        // const mainWindow = new BrowserWindow({
-        //     width: 80, height: 80,
-        //     roundedCorners: true, show: true,
-        //     icon: join(__dirname, `icon.ico`),
-        //     frame: false, hasShadow: true, title: 'pageStyle2',
-        //     resizable: false, maximizable: false, skipTaskbar: false,
-        // });
-        
-        new BrowserWindow({
-            width: 80, height: 80,
+        const mainWindow = new BrowserWindow({
+            width: 280, height: 280,
             roundedCorners: true, show: true,
             icon: join(__dirname, `icon.ico`),
-            frame: false, hasShadow: true, title: 'pageStyle3',
+            frame: false, hasShadow: true, title: 'pageStyle2',
             resizable: false, maximizable: false, skipTaskbar: false,
         });
+
+        mainWindow.loadURL('https://www.google.com');
         
-        await showLoadingDialog(win10Loading);
+        
+        await showLoadingDialog(win10Loading, mainWindow);
 
     } catch (e) {
 
