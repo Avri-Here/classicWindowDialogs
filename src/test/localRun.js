@@ -48,25 +48,24 @@ const { showLoadingDialog } = require('../app');
 
 
 const vinXpLoading = {
-    // timeOut: 16000,
     pageStyle: 'winXp',
     loadingMsg: 'Windows XP - Please Wait ..',
 };
 
 const vistaLoading = {
-    // timeOut: 26000,
+    timeOut: 6000,
     pageStyle: 'vista',
     loadingMsg: 'Windows Vista - Preparing ..',
 };
 
 const win8Loading = {
-    // timeOut: 36000,
+    timeOut: 8000,
     pageStyle: 'win8',
     loadingMsg: 'Windows 8 - Loading ..',
 };
 
 const win10Loading = {
-    // timeOut: 46000,
+    timeOut: 10000,
     pageStyle: 'win10',
     loadingMsg: 'Win 10 - One moment ..',
 };
