@@ -90,9 +90,9 @@ const win10Loading = {
 try {
 
     const winXpLoad = await showLoadingDialog(vinXpLoading);
-    showLoadingDialog(vistaLoading);
-    showLoadingDialog(win8Loading);
-    showLoadingDialog(win10Loading);
+    await showLoadingDialog(vistaLoading);
+    await showLoadingDialog(win8Loading);
+    await showLoadingDialog(win10Loading);
     
     winXpLoad.closeLoadDialog();
 
