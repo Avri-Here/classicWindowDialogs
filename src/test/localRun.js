@@ -65,42 +65,49 @@ const win8Loading = {
 };
 
 const win10Loading = {
-    // timeOut: 10000,
+    timeOut: 10000,
     pageStyle: 'win10',
     loadingMsg: 'Win 10 - One moment ..',
 };
 
 
 const { join } = require('path');
-const { app, BrowserWindow } = require('electron');
 const { showLoadingDialog } = require('../app');
+const { app, BrowserWindow } = require('electron');
 
 (async () => {
 
     try {
-        await app.whenReady();
 
-       new BrowserWindow({
-            width: 80, height: 280, 
+        await app.whenReady();
+        // new BrowserWindow({
+        //     width: 80, height: 280,
+        //     roundedCorners: true, show: true,
+        //     icon: join(__dirname, `icon.ico`),
+        //     frame: false, hasShadow: true, title: 'pageStyle1',
+        //     resizable: false, maximizable: false, skipTaskbar: false,
+        // });
+
+
+        // await new Promise((resolve) => setTimeout(resolve, 20000));
+
+        // const mainWindow = new BrowserWindow({
+        //     width: 80, height: 80,
+        //     roundedCorners: true, show: true,
+        //     icon: join(__dirname, `icon.ico`),
+        //     frame: false, hasShadow: true, title: 'pageStyle2',
+        //     resizable: false, maximizable: false, skipTaskbar: false,
+        // });
+        
+        new BrowserWindow({
+            width: 80, height: 80,
             roundedCorners: true, show: true,
             icon: join(__dirname, `icon.ico`),
-            frame: false, hasShadow: true, title: 'pageStyle',
+            frame: false, hasShadow: true, title: 'pageStyle3',
             resizable: false, maximizable: false, skipTaskbar: false,
         });
         
-        const mainWindow = new BrowserWindow({
-            width: 80, height: 80, 
-            roundedCorners: true, show: true,
-            icon: join(__dirname, `icon.ico`),
-            frame: false, hasShadow: true, title: 'pageStyle',
-            resizable: false, maximizable: false, skipTaskbar: false,
-        });
-
         await showLoadingDialog(win10Loading);
-
-
-
-
 
     } catch (e) {
 

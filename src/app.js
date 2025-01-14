@@ -4,8 +4,8 @@
 
 require('./utils/config');
 const { join } = require('path');
-const { BrowserWindow, screen, ipcMain } = require('electron');
 
+const { BrowserWindow, screen, ipcMain, nativeImage } = require('electron');
 
 
 const showConfirmDialog = (dialogOptions = {}) => {
@@ -76,10 +76,10 @@ const showConfirmDialog = (dialogOptions = {}) => {
 
 const showLoadingDialog = (dialogOptions = {}) => {
 
-    const pageStyle = dialogOptions.pageStyle || 'vista';
-    const loadingMsg = dialogOptions.loadingMsg || 'Please wait ..';
 
     const width = 440, height = 230;
+    const pageStyle = dialogOptions.pageStyle || 'vista';
+    const loadingMsg = dialogOptions.loadingMsg || 'Please wait ..';
 
     const preload = join(__dirname, `pages/loading/${pageStyle}/preload.js`);
     const icon = join(__dirname, `pages/loading/${pageStyle}/misc/icon.ico`);
@@ -87,15 +87,22 @@ const showLoadingDialog = (dialogOptions = {}) => {
     return new Promise((resolve) => {
 
         const mainWindow = new BrowserWindow({
-            skipTaskbar: false, parent: null,
             width, height, alwaysOnTop: true,
+            skipTaskbar: false,
             roundedCorners: true, show: false,
-            resizable: false, maximizable: false, icon,
+            resizable: false, maximizable: false,
+            icon,
             frame: false, hasShadow: true, title: pageStyle,
             webPreferences: {
                 sandbox: false, nodeIntegration: true, preload,
                 additionalArguments: ["--dialogArg= " + JSON.stringify({ loadingMsg })]
             }
+        });
+
+        // mainWindow.setFullScreen(true);
+        mainWindow.setAppDetails({
+            appIconPath: icon,
+            appId: 'avri.com.classic.window.dialog'
         });
 
         mainWindow.loadFile(join(__dirname, `pages/loading/${pageStyle}/index.html`));
@@ -108,34 +115,7 @@ const showLoadingDialog = (dialogOptions = {}) => {
             y: Math.round((screenHeight - height) / 2)
         });
 
-        const otherWindows = BrowserWindow.getAllWindows().filter(win => win !== mainWindow);
-
-
-        otherWindows.forEach(win => {
-
-            win.setSkipTaskbar(true);
-            mainWindow.setParentWindow(null);
-
-        });
-
-        mainWindow.on('close', () => {
-            
-            const otherWindows = BrowserWindow.getAllWindows().filter(win => win !== mainWindow);
-
-            otherWindows.forEach(win => {
-
-                win.setSkipTaskbar(false);
-
-            });
-        });
-
-        // console.log(otherWindows);
-
-        // visibleWin.setSkipTaskbar(true);
-
-        // if (getVisibleWin) {
-        //     mainWindow.setIcon(icon); // Temporarily change the mainWindow icon
-        // }
+        // mainWindow.once('ready-to-show', () => {
 
         mainWindow.webContents.on('did-finish-load', () => {
 
@@ -144,38 +124,43 @@ const showLoadingDialog = (dialogOptions = {}) => {
             mainWindow.show();
             mainWindow.focus();
 
-            if (dialogOptions.timeOut) {
+            mainWindow.setOverlayIcon(icon || null, '...');
 
-                const closeLoadDialog = dialogOptions.timeOut;
+
+
+            const closeDialogMs = dialogOptions.timeOut;
+            if (closeDialogMs) {
+
 
                 setTimeout(() => {
 
-                    let opacity = 1;
-                    const fadeOutInterval = 10, fadeStep = 0.15;
+                    // let opacity = 1;
+                    // const fadeOutInterval = 10, fadeStep = 0.15;
 
-                    const fadeOut = setInterval(() => {
+                    // const fadeOut = setInterval(() => {
 
-                        if (opacity > 0) {
+                    // if (opacity > 0) {
 
-                            opacity -= fadeStep;
-                            mainWindow.setOpacity(opacity);
-                            return;
-                        };
+                    //     opacity -= fadeStep;
+                    //     mainWindow.setOpacity(opacity);
+                    //     return;
+                    // };
 
-                        clearInterval(fadeOut);
+                    // clearInterval(fadeOut);
 
 
-                        if (!mainWindow.isDestroyed()) {
-                            mainWindow.close();
-                        };
+                    if (!mainWindow.isDestroyed()) {
+                        mainWindow.close();
 
-                        if (mainWindow) {
-                            mainWindow.setIcon(originalIconPath); // Restore the original icon
-                        }
+                    };
 
-                    }, fadeOutInterval);
+                    // if (mainWindow) {
+                    // mainWindow.setIcon(originalIconPath);
+                    // }
 
-                }, closeLoadDialog);
+                    // }, fadeOutInterval);
+
+                }, closeDialogMs);
             };
 
             resolve({
@@ -200,4 +185,56 @@ module.exports = { showConfirmDialog, showLoadingDialog };
 
 
 
+
+// const dataURL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==';
+
+// const overlayIcon = nativeImage.createFromDataURL(dataURL);
+// const activeWindows = BrowserWindow.getAllWindows();
+// const otherWindows = BrowserWindow.getAllWindows().filter(win => win.);
+// const otherWindows = BrowserWindow.getFocusedWindow().map(win => win);
+
+
+// otherWindows.forEach(win => {
+
+
+// console.log(JSON.stringify(win , null, 4));
+
+// });
+// otherWindows.forEach(win => {
+
+//     win.setSkipTaskbar(true);
+//     mainWindow.setParentWindow(null);
+
+// });
+
+// mainWindow.on('close', () => {
+
+//     const otherWindows = BrowserWindow.getAllWindows().filter(win => win !== mainWindow);
+
+//     otherWindows.forEach(win => {
+
+//         win.setSkipTaskbar(false);
+
+//     });
+// });
+
+// console.log(otherWindows);
+
+// visibleWin.setSkipTaskbar(true);
+
+// if (getVisibleWin) {
+//     mainWindow.setIcon(icon); // Temporarily change the mainWindow icon
+// }
+
+// const parentWindow = activeWindows[1];
+// const parentWindow2 = activeWindows[2];
+// const icon3 = parentWindow.getMediaSourceId();
+// const icon4 = parentWindow2.getMediaSourceId();
+
+// console.log(icon3 + ' ' + icon4);
+// const sources = await desktopCapturer.getSources({ types: ['window'] });
+// const targetSource = sources.find(source => source.id === icon3 || source.id === icon4);
+// console.log('Found source:', sources);
+// console.log('Icon thumbnail available:', targetSource.thumbnail.toDataURL());
+// mainWindow.setIcon(icon); // Temporarily change the mainWindow icon
 
