@@ -143,7 +143,15 @@ const showLoadingDialog = (dialogOptions = {}) => {
                 }, closeLoadDialog);
             };
 
-            resolve({ closeLoadDialog: () => mainWindow.close() });
+            resolve({
+                closeLoadDialog: () => {
+
+                    if (!mainWindow.isDestroyed()) {
+                        mainWindow.close();
+                    };
+
+                }
+            });
 
         });
 

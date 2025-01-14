@@ -63,7 +63,7 @@ try {
 
 const { showLoadingDialog } = require('electron-classic-window-dialog');
 
-const vinXpLoading = {
+const winXpLoading = {
     pageStyle: 'winXp',
     loadingMsg: 'Windows XP on it ..',
 };
@@ -89,7 +89,7 @@ const win10Loading = {
 
 try {
 
-    const winXpLoad = await showLoadingDialog(vinXpLoading);
+    const winXpLoad = await showLoadingDialog(winXpLoading);
     await showLoadingDialog(vistaLoading);
     await showLoadingDialog(win8Loading);
     await showLoadingDialog(win10Loading);
