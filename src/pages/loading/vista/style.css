@@ -1,0 +1,53 @@
+body {
+  -webkit-app-region: drag;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  user-select: none;
+  background: url('./misc/cover.jpg') no-repeat center center fixed;
+  background-size: cover;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  height: 100vh;
+  width: 100vw;
+}
+
+.container {
+
+  width: 100%;
+  height: auto;
+  display: flex;
+  text-align: center;
+  justify-content: center;
+
+}
+
+.statusLive {
+  position: absolute;
+  bottom: 20%;
+  font-size: 20px;
+  text-shadow: 1px 1px 1px rgba(9, 47, 118, 0.31);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: bold;
+  color: #053141a5;
+  line-height: 1.7;
+  white-space: nowrap; 
+  
+}
+
+
+.progressBarWrapper {
+
+  position: absolute;
+  width: 355px;
+  height: 18px;
+  border: 1px solid #1a754b;
+  border-radius: 10px;
+  background: url('./misc/loud.gif') no-repeat center center;
+  background-size: cover;
+  bottom: 7%;
+  opacity: 0.7;
+}
+
+.playAudio {
+  display: none;
+}
