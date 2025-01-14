@@ -1,4 +1,4 @@
-# Electron Dialogs Old Style
+# Windows Dialogs Collection 
 
 ## About the Library :
 
@@ -27,7 +27,7 @@ The dialogs mimic the visual style, layout, and sound effects of legacy Windows 
 
 ```javascript
 
-const { showConfirmDialog } = require('electron-all-win-dialogs');
+const { showConfirmDialog } = require('electron-classic-window-dialog');
 
 const confirmDialog = {
     pageStyle: 'vista',
@@ -50,7 +50,7 @@ try {
 
 
 ```
-![Info Dialog Image](https://github.com/Avri-Here/winDialogs/blob/main/demos/vistaDialog.png)
+![Info Dialog Image](https://github.com/Avri-Here/classicWindowDialogs/blob/main/demos/vistaDialog.png)
 
 
 
@@ -59,7 +59,7 @@ try {
 
 ```javascript
 
-const { showLoadingDialog } = require('electron-all-win-dialogs');
+const { showLoadingDialog } = require('electron-classic-window-dialog');
 
 const vinXpLoading = {
     pageStyle: 'winXp',
@@ -103,11 +103,11 @@ try {
 
 
 ```
-![Info Dialog Image](https://github.com/Avri-Here/winDialogs/blob/main/demos/loadDialogs.gif)
+![Info Dialog Image](https://github.com/Avri-Here/classicWindowDialogs/blob/main/demos/loadDialogs.gif)
 
 
 ## Links
 
-- [GitHub ](https://github.com/Avri-Here/winDialogs)
-- [NPM ](https://www.npmjs.com/package/electron-all-win-dialogs)
+- [GitHub ](https://github.com/Avri-Here/classicWindowDialogs)
+- [NPM ](https://www.npmjs.com/package/windows-dialogs)
 

@@ -3,7 +3,7 @@
 
 // const { app } = require('electron');
 // const { showConfirmDialog } = require('../app');
-// // const { showConfirmDialog } = require('electron-all-win-dialogs');
+// // const { showConfirmDialog } = require('electron-classic-window-dialog');
 
 // const confirmDialog = {
 //     pageStyle: 'vista',
@@ -44,7 +44,7 @@
 
 const { app } = require('electron');
 const { showLoadingDialog } = require('../app');
-// const { showLoadingDialog } = require('electron-all-win-dialogs');
+// const { showLoadingDialog } = require('electron-classic-window-dialog');
 
 
 const vinXpLoading = {

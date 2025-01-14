@@ -1,5 +1,5 @@
 {
-    "name": "classic-windows-dialogs",
+    "name": "electron-classic-window-dialog",
     "version": "1.1.1",
     "description": "Collection of Windows dialogs style for Electron app ..",
     "main": "src/app.js",
