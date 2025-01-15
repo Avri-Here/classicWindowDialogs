@@ -3,55 +3,9 @@
 
 require('./utils/conf');
 const { join } = require('path');
-const { getActiveWinFromApp, extractFromExe } = require('./utils/utils');
-const { BrowserWindow, screen, ipcMain, app, nativeImage } = require('electron');
+const {  extractFromExe } = require('./utils/utils');
+const { BrowserWindow, screen, ipcMain, nativeImage } = require('electron');
 
-// app.commandLine.appendSwitch('enable-logging');
-
-// const demoObj = { electronWin: new BrowserWindow };
-
-// app.on('browser-window-focus', (_, window) => {
-
-//     // const isDialogAlreadyOpen = BrowserWindow.getAllWindows.some(win => win.title === 'Confirm Dialog');
-
-//     // process.env.lastFocusedWindow = window.title;
-//     console.log('Focused Window : ' + window.title);
-
-// });
-
-// app.on('browser-window-created', (event, window) => {
-
-//     console.log('A new BrowserWindow was created !');
-
-
-
-//     window.webContents.openDevTools();
-// });
-
-// app.on('browser-window-created', (event, window) => {
-
-//     console.log('A new BrowserWindow was created !');
-
-//     // Log details about the window
-//     console.log('URL loaded in the window :', window.webContents.getURL());
-//     console.log('Window ID:', window.id);
-
-//     window.webContents.openDevTools();
-
-//     // Listen for webContents events for more details
-//     window.webContents.on('did-start-navigation', (event, url) => {
-
-//         console.log('Navigation started to :', url);
-//         console.log('Navigation started from :', event.url);
-//     });
-// });
-
-// app.on('window-all-closed', () => {
-
-//     if (process.platform !== 'darwin') {
-//         app.quit();
-//     }
-// });
 
 const showConfirmDialog = (dialogOptions = {}) => {
 
@@ -115,12 +69,6 @@ const showConfirmDialog = (dialogOptions = {}) => {
 
 };
 
-// const uniqueWinId = `${Date.now()}-${Math.random()}`;
-// const lastWindow = await getActiveWinFromApp();
-// const parentWin = BrowserWindow.fromId(dialogObj.parentId);
-
-// const isRootWinOn = lastWindow?.electronWin && !lastWindow.electronWin.isDestroyed();
-// title: pageStyle + '_' + uniqueWinId,
 
 
 const showLoadingDialog = async (dialogObj = {}) => {
@@ -141,7 +89,6 @@ const showLoadingDialog = async (dialogObj = {}) => {
 
         const allWindows = BrowserWindow.getAllWindows();
         const parentWin = allWindows.find(win => win.title === dialogObj.parentTitle);
-        // const isPrviouseDialogOpen = allWindows.some(win => win.title === 'showLoadingDialog');
 
         const mainWindow = new BrowserWindow({
 
@@ -167,7 +114,7 @@ const showLoadingDialog = async (dialogObj = {}) => {
 
             if (!rootWindow) {
 
-                //  parent window is pass - 
+                //  parent window is pass ? 
                 //  set the dialogWindow on the top of the parent, or in separate one ..
                 mainWindow.setParentWindow(null);
                 mainWindow.setAppDetails({
@@ -209,26 +156,8 @@ const showLoadingDialog = async (dialogObj = {}) => {
             mainWindow.focus();
             mainWindow.setAlwaysOnTop(true);
 
-            // const closeLoadingDialog = () => {
 
-            //     if (!mainWindow?.isDestroyed()) {
-            //         mainWindow.close();
-            //     };
-
-            //     if (!rootWindow?.isDestroyed()) {
-
-            //         const pathIco = process.env.parentIconPath;
-            //         console.log('Path Icon : ', pathIco);
-            //         const icoHere = nativeImage.createFromPath(pathIco);
-
-            //         rootWindow.focus(true);
-            //         rootWindow.setProgressBar(-1);
-            //         rootWindow.setIcon(icoHere || null);
-            //         rootWindow.setOverlayIcon(null, '...');
-            //     };
-            // };
-
-            const closeLoadingDialog = () => {
+            const closeLoadDialog = () => {
 
                 if (mainWindow && !mainWindow.isDestroyed()) {
                     mainWindow.close();
@@ -244,12 +173,13 @@ const showLoadingDialog = async (dialogObj = {}) => {
                 }
             };
 
-            resolve(closeLoadingDialog);
-            dialogObj.timeOut && setTimeout(closeLoadingDialog, dialogObj.timeOut);
+            resolve({ closeLoadDialog });
+            dialogObj.timeOut && setTimeout(closeLoadDialog, dialogObj.timeOut);
+
 
             mainWindow.on('closed', () => {
 
-                closeLoadingDialog();
+                closeLoadDialog();
                 mainWindow.removeAllListeners();
             });
 

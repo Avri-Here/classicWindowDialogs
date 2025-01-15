@@ -661,3 +661,52 @@
 // "get-windows": "^9.2.0",
 // "hmc-win32": "^1.4.92",
 // "node-global-key-listener": "^0.3.0"
+
+
+
+// app.commandLine.appendSwitch('enable-logging');
+
+// const demoObj = { electronWin: new BrowserWindow };
+
+// app.on('browser-window-focus', (_, window) => {
+
+//     // const isDialogAlreadyOpen = BrowserWindow.getAllWindows.some(win => win.title === 'Confirm Dialog');
+
+//     // process.env.lastFocusedWindow = window.title;
+//     console.log('Focused Window : ' + window.title);
+
+// });
+
+// app.on('browser-window-created', (event, window) => {
+
+//     console.log('A new BrowserWindow was created !');
+
+
+
+//     window.webContents.openDevTools();
+// });
+
+// app.on('browser-window-created', (event, window) => {
+
+//     console.log('A new BrowserWindow was created !');
+
+//     // Log details about the window
+//     console.log('URL loaded in the window :', window.webContents.getURL());
+//     console.log('Window ID:', window.id);
+
+//     window.webContents.openDevTools();
+
+//     // Listen for webContents events for more details
+//     window.webContents.on('did-start-navigation', (event, url) => {
+
+//         console.log('Navigation started to :', url);
+//         console.log('Navigation started from :', event.url);
+//     });
+// });
+
+// app.on('window-all-closed', () => {
+
+//     if (process.platform !== 'darwin') {
+//         app.quit();
+//     }
+// });

@@ -100,11 +100,12 @@ const win10Loading = {
             //     // parentTitle : if wont to set the dialog as block for the parent ..
             const vistaLoading = {
                 parentTitle: 'mainWindowCall',
-                pageStyle: 'vista', timeOut: 5000,
+                pageStyle: 'vista', timeOut: 7000,
                 loadingMsg: 'Windows vista - preparing ..',
             };
 
-            await showLoadingDialog(vistaLoading);
+            const ins = await showLoadingDialog(vistaLoading);
+            ins.closeLoadDialog();
         });
 
         // showLoadingDialog(win10Loading);

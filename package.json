@@ -1,6 +1,6 @@
 {
     "name": "electron-classic-window-dialog",
-    "version": "1.1.2",
+    "version": "1.1.4",
     "description": "Collection of Windows dialogs style for Electron app ..",
     "main": "src/app.js",
     "scripts": {
@@ -25,6 +25,7 @@
     ],
     "dependencies": {
         "electron": "^33.2.1",
+        "get-windows": "^9.2.0",
         "file-icon-extractor": "^1.0.4"
     },
     "devDependencies": {
