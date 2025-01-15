@@ -1,12 +1,57 @@
 
 
 
-
-require('./utils/config');
+require('./utils/conf');
 const { join } = require('path');
+const { getActiveWinFromApp, extractFromExe } = require('./utils/utils');
+const { BrowserWindow, screen, ipcMain, app, nativeImage } = require('electron');
 
-const { BrowserWindow, screen, ipcMain, nativeImage } = require('electron');
+// app.commandLine.appendSwitch('enable-logging');
 
+// const demoObj = { electronWin: new BrowserWindow };
+
+// app.on('browser-window-focus', (_, window) => {
+
+//     // const isDialogAlreadyOpen = BrowserWindow.getAllWindows.some(win => win.title === 'Confirm Dialog');
+
+//     // process.env.lastFocusedWindow = window.title;
+//     console.log('Focused Window : ' + window.title);
+
+// });
+
+// app.on('browser-window-created', (event, window) => {
+
+//     console.log('A new BrowserWindow was created !');
+
+
+
+//     window.webContents.openDevTools();
+// });
+
+// app.on('browser-window-created', (event, window) => {
+
+//     console.log('A new BrowserWindow was created !');
+
+//     // Log details about the window
+//     console.log('URL loaded in the window :', window.webContents.getURL());
+//     console.log('Window ID:', window.id);
+
+//     window.webContents.openDevTools();
+
+//     // Listen for webContents events for more details
+//     window.webContents.on('did-start-navigation', (event, url) => {
+
+//         console.log('Navigation started to :', url);
+//         console.log('Navigation started from :', event.url);
+//     });
+// });
+
+// app.on('window-all-closed', () => {
+
+//     if (process.platform !== 'darwin') {
+//         app.quit();
+//     }
+// });
 
 const showConfirmDialog = (dialogOptions = {}) => {
 
@@ -46,13 +91,10 @@ const showConfirmDialog = (dialogOptions = {}) => {
             y: Math.round((screenHeight - height) / 2)
         });
 
-
-
         mainWindow.webContents.on('did-finish-load', () => {
 
             process.env.dialogTest && mainWindow.webContents.openDevTools({ mode: 'undocked' });
             mainWindow.show();
-
         });
 
 
@@ -73,87 +115,142 @@ const showConfirmDialog = (dialogOptions = {}) => {
 
 };
 
+// const uniqueWinId = `${Date.now()}-${Math.random()}`;
+// const lastWindow = await getActiveWinFromApp();
+// const parentWin = BrowserWindow.fromId(dialogObj.parentId);
 
-const showLoadingDialog = (dialogOptions = {}, mainWindow4) => {
+// const isRootWinOn = lastWindow?.electronWin && !lastWindow.electronWin.isDestroyed();
+// title: pageStyle + '_' + uniqueWinId,
 
+
+const showLoadingDialog = async (dialogObj = {}) => {
+
+    const { openWindows } = await import('get-windows');
 
     const width = 440, height = 230;
-    const pageStyle = dialogOptions.pageStyle || 'vista';
-    const loadingMsg = dialogOptions.loadingMsg || 'Please wait ..';
+    const pageStyle = dialogObj.pageStyle || 'vista';
+    const perentDIalog = dialogObj.parentTitle || false;
+    const loadingMsg = dialogObj.loadingMsg || 'loading ..';
+
 
     const preload = join(__dirname, `pages/loading/${pageStyle}/preload.js`);
     const icon = join(__dirname, `pages/loading/${pageStyle}/misc/icon.ico`);
 
-    return new Promise((resolve) => {
+
+    return new Promise(resolve => {
+
+        const allWindows = BrowserWindow.getAllWindows();
+        const parentWin = allWindows.find(win => win.title === dialogObj.parentTitle);
+        // const isPrviouseDialogOpen = allWindows.some(win => win.title === 'showLoadingDialog');
 
         const mainWindow = new BrowserWindow({
+
+            title: 'showLoadingDialog',
             roundedCorners: true, show: false,
             resizable: false, maximizable: false,
-            width, height, alwaysOnTop: true, skipTaskbar: false,
-            icon, parent: mainWindow4,
-            modal: true,
-            frame: false, hasShadow: true, title: pageStyle,
+            modal: perentDIalog, parent: parentWin,
+            width, height, frame: false, icon, center: true,
+            alwaysOnTop: true, skipTaskbar: false, hasShadow: true,
             webPreferences: {
                 sandbox: false, nodeIntegration: true, preload,
-                additionalArguments: ["--dialogArg= " + JSON.stringify({ loadingMsg })]
+                additionalArguments: ["--dialogArg=" + JSON.stringify({ loadingMsg })],
             }
         });
 
-        mainWindow.setAppDetails({
-            appIconPath: icon,
-            appId: 'avri.com.classic.window.dialog'
-        });
-
+        mainWindow.setProgressBar(2);
         mainWindow.loadFile(join(__dirname, `pages/loading/${pageStyle}/index.html`));
 
-        const workAreaSize = screen.getPrimaryDisplay().workAreaSize;
-        const screenWidth = workAreaSize.width, screenHeight = workAreaSize.height;
 
-        mainWindow.setBounds({
-            x: Math.round((screenWidth - width) / 2),
-            y: Math.round((screenHeight - height) / 2)
-        });
+        mainWindow.webContents.on('did-finish-load', async () => {
 
-        // mainWindow.once('ready-to-show', () => {
+            const rootWindow = mainWindow.getParentWindow();
 
-        mainWindow.webContents.on('did-finish-load', () => {
+            if (!rootWindow) {
 
-            process.env.dialogTest && mainWindow.webContents.openDevTools({ mode: 'undocked' });
+                //  parent window is pass - 
+                //  set the dialogWindow on the top of the parent, or in separate one ..
+                mainWindow.setParentWindow(null);
+                mainWindow.setAppDetails({
+                    appIconPath: icon,
+                    appId: 'dialog.loading.' + pageStyle + '.' + Date.now()
+                });
+            };
+
+
+            if (!rootWindow?.isDestroyed()) {
+
+                const allOpenWindows = await openWindows();
+                const fromOpenWindow = allOpenWindows.find(win => win.title === dialogObj.parentTitle);
+
+                if (fromOpenWindow) {
+
+                    console.log(`Active Window Title : ${fromOpenWindow.title}`);
+                    console.log(`Executable Path ( EXE ) : ${fromOpenWindow.owner.path}`);
+
+                    process.env.parentIconPath = extractFromExe(fromOpenWindow.owner.path);
+                    const icoHere = nativeImage.createFromPath(process.env.parentIconPath);
+
+                    rootWindow.setIcon(icon);
+                    rootWindow.setProgressBar(3);
+                    rootWindow.setOverlayIcon(icoHere, '..');
+
+                };
+
+                if (dialogObj.parentTitle && !fromOpenWindow) {
+
+                    console.warn('Expected to get root Window !');
+                    console.warn('Set the dialogWindow in separate Window .. ');
+                    console.warn('The parentTitle was passed and find it via BrowserWindow .. ');
+                };
+
+            };
 
             mainWindow.show();
             mainWindow.focus();
-            const activeWindows = BrowserWindow.getAllWindows();
-            console.log(activeWindows.length);
+            mainWindow.setAlwaysOnTop(true);
 
-            mainWindow.setOverlayIcon(icon || null, '...');
+            // const closeLoadingDialog = () => {
 
+            //     if (!mainWindow?.isDestroyed()) {
+            //         mainWindow.close();
+            //     };
 
+            //     if (!rootWindow?.isDestroyed()) {
 
-            const closeDialogMs = dialogOptions.timeOut;
+            //         const pathIco = process.env.parentIconPath;
+            //         console.log('Path Icon : ', pathIco);
+            //         const icoHere = nativeImage.createFromPath(pathIco);
 
-            if (closeDialogMs) {
+            //         rootWindow.focus(true);
+            //         rootWindow.setProgressBar(-1);
+            //         rootWindow.setIcon(icoHere || null);
+            //         rootWindow.setOverlayIcon(null, '...');
+            //     };
+            // };
 
+            const closeLoadingDialog = () => {
 
-                setTimeout(() => {
+                if (mainWindow && !mainWindow.isDestroyed()) {
+                    mainWindow.close();
 
+                };
 
-                    if (!mainWindow.isDestroyed()) {
-                        mainWindow.close();
-                        resolve('timeOutResolved');
+                if (rootWindow && !rootWindow.isDestroyed()) {
 
-                    };
-
-                }, closeDialogMs);
+                    const pathIco = process.env.parentIconPath;
+                    rootWindow.setIcon(pathIco);
+                    rootWindow.setProgressBar(0);
+                    rootWindow.setOverlayIcon(null, '..');
+                }
             };
 
-            resolve({
-                closeLoadDialog: () => {
+            resolve(closeLoadingDialog);
+            dialogObj.timeOut && setTimeout(closeLoadingDialog, dialogObj.timeOut);
 
-                    if (!mainWindow.isDestroyed()) {
-                        mainWindow.close();
-                    };
+            mainWindow.on('closed', () => {
 
-                }
+                closeLoadingDialog();
+                mainWindow.removeAllListeners();
             });
 
         });
@@ -161,71 +258,7 @@ const showLoadingDialog = (dialogOptions = {}, mainWindow4) => {
     });
 };
 
+
 module.exports = { showConfirmDialog, showLoadingDialog };
 
-
-
-
-
-
-// mainWindow.setFullScreen(true);
-
-// if (mainWindow) {
-// mainWindow.setIcon(originalIconPath);
-// }
-
-// }, fadeOutInterval);
-
-
-// const dataURL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==';
-
-// const overlayIcon = nativeImage.createFromDataURL(dataURL);
-// const activeWindows = BrowserWindow.getAllWindows();
-// const otherWindows = BrowserWindow.getAllWindows().filter(win => win.);
-// const otherWindows = BrowserWindow.getFocusedWindow().map(win => win);
-
-
-// otherWindows.forEach(win => {
-
-
-// console.log(JSON.stringify(win , null, 4));
-
-// });
-// otherWindows.forEach(win => {
-
-//     win.setSkipTaskbar(true);
-//     mainWindow.setParentWindow(null);
-
-// });
-
-// mainWindow.on('close', () => {
-
-//     const otherWindows = BrowserWindow.getAllWindows().filter(win => win !== mainWindow);
-
-//     otherWindows.forEach(win => {
-
-//         win.setSkipTaskbar(false);
-
-//     });
-// });
-
-// console.log(otherWindows);
-
-// visibleWin.setSkipTaskbar(true);
-
-// if (getVisibleWin) {
-//     mainWindow.setIcon(icon); // Temporarily change the mainWindow icon
-// }
-
-// const parentWindow = activeWindows[1];
-// const parentWindow2 = activeWindows[2];
-// const icon3 = parentWindow.getMediaSourceId();
-// const icon4 = parentWindow2.getMediaSourceId();
-
-// console.log(icon3 + ' ' + icon4);
-// const sources = await desktopCapturer.getSources({ types: ['window'] });
-// const targetSource = sources.find(source => source.id === icon3 || source.id === icon4);
-// console.log('Found source:', sources);
-// console.log('Icon thumbnail available:', targetSource.thumbnail.toDataURL());
-// mainWindow.setIcon(icon); // Temporarily change the mainWindow icon
 

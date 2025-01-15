@@ -52,11 +52,7 @@ const winXpLoading = {
     loadingMsg: 'Windows XP - Please Wait ..',
 };
 
-const vistaLoading = {
-    // timeOut: 6000,
-    pageStyle: 'vista',
-    loadingMsg: 'Windows Vista - Preparing ..',
-};
+
 
 const win8Loading = {
     // timeOut: 8000,
@@ -65,44 +61,67 @@ const win8Loading = {
 };
 
 const win10Loading = {
-    timeOut: 10000,
+    // timeOut: 10000,
     pageStyle: 'win10',
     loadingMsg: 'Win 10 - One moment ..',
 };
 
 
-const { join } = require('path');
-const { showLoadingDialog } = require('../app');
-const { app, BrowserWindow } = require('electron');
+
 
 (async () => {
+
+    const { join } = require('path');
+    const { showLoadingDialog } = require('../app');
+    const { app, BrowserWindow } = require('electron');
 
     try {
 
         await app.whenReady();
-        // new BrowserWindow({
-        //     width: 80, height: 280,
-        //     roundedCorners: true, show: true,
-        //     icon: join(__dirname, `icon.ico`),
-        //     frame: false, hasShadow: true, title: 'pageStyle1',
-        //     resizable: false, maximizable: false, skipTaskbar: false,
-        // });
 
-
-        // await new Promise((resolve) => setTimeout(resolve, 20000));
+        const icon1 = join(__dirname, '../pages/loading/winXp/misc', `icon.ico`);
+        const icon2 = join(__dirname, '../pages/loading/win10/misc', `icon.ico`);
 
         const mainWindow = new BrowserWindow({
-            width: 280, height: 280,
-            roundedCorners: true, show: true,
-            icon: join(__dirname, `icon.ico`),
-            frame: false, hasShadow: true, title: 'pageStyle2',
-            resizable: false, maximizable: false, skipTaskbar: false,
+            width: 680, height: 580,
+            icon: icon1, show: false, center: true,
         });
 
         mainWindow.loadURL('https://www.google.com');
-        
-        
-        await showLoadingDialog(win10Loading, mainWindow);
+
+
+        mainWindow.webContents.on('did-finish-load', async () => {
+
+            mainWindow.show();
+            mainWindow.focus();
+            mainWindow.setAlwaysOnTop(true);
+            mainWindow.setTitle('mainWindowCall');
+
+            //     // parentTitle : if wont to set the dialog as block for the parent ..
+            const vistaLoading = {
+                parentTitle: 'mainWindowCall',
+                pageStyle: 'vista', timeOut: 5000,
+                loadingMsg: 'Windows vista - preparing ..',
+            };
+
+            await showLoadingDialog(vistaLoading);
+        });
+
+        // showLoadingDialog(win10Loading);
+
+
+        // new BrowserWindow({
+        //     width: 350, height: 250,
+        //     icon: icon1, show: true, center: true
+        // });
+
+
+        // await new Promise((resolve) => setTimeout(resolve, 2000));
+
+
+        // await showLoadingDialog(vistaLoading);
+
+
 
     } catch (e) {
 
@@ -110,13 +129,13 @@ const { app, BrowserWindow } = require('electron');
 
     };
 
-    app.on('window-all-closed', () => {
+    // app.on('window-all-closed', () => {
 
 
-        if (process.platform !== 'darwin') {
-            app.quit();
-        };
-    });
+    //     if (process.platform !== 'darwin') {
+    //         app.quit();
+    //     };
+    // });
 
 })();
 
