@@ -80,7 +80,6 @@ const showLoadingDialog = async (dialogObj = {}) => {
     const perentDIalog = dialogObj.parentTitle || false;
     const loadingMsg = dialogObj.loadingMsg || 'loading ..';
 
-
     const preload = join(__dirname, `pages/loading/${pageStyle}/preload.js`);
     const icon = join(__dirname, `pages/loading/${pageStyle}/misc/icon.ico`);
 
@@ -92,7 +91,7 @@ const showLoadingDialog = async (dialogObj = {}) => {
 
         const mainWindow = new BrowserWindow({
 
-            title: 'showLoadingDialog',
+            title: 'loadingDialog',
             roundedCorners: true, show: false,
             resizable: false, maximizable: false,
             modal: perentDIalog, parent: parentWin,
