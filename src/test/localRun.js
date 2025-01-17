@@ -97,15 +97,14 @@ const win10Loading = {
             mainWindow.setAlwaysOnTop(true);
             mainWindow.setTitle('mainWindowCall');
 
-            //     // parentTitle : if wont to set the dialog as block for the parent ..
             const vistaLoading = {
-                parentTitle: 'mainWindowCall',
-                pageStyle: 'vista', timeOut: 7000,
+                // parentTitle: 'mainWindowCall',
+                pageStyle: 'vista', timeOut: 19000,
                 loadingMsg: 'Windows vista - preparing ..',
             };
 
             const ins = await showLoadingDialog(vistaLoading);
-            ins.closeLoadDialog();
+            // ins.closeLoadDialog();
         });
 
         // showLoadingDialog(win10Loading);

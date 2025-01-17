@@ -3,8 +3,8 @@
 
 require('./utils/conf');
 const { join } = require('path');
-const {  extractFromExe } = require('./utils/utils');
-const { BrowserWindow, screen, ipcMain, nativeImage } = require('electron');
+const { BrowserWindow, screen, ipcMain, Menu } = require('electron');
+const { log } = require('console');
 
 
 const showConfirmDialog = (dialogOptions = {}) => {
@@ -12,7 +12,7 @@ const showConfirmDialog = (dialogOptions = {}) => {
     const title = dialogOptions.title || 'Information';
     const pageStyle = dialogOptions.pageStyle || 'vista';
     const windowsId = `dialogWin${Date.now()}_${Math.random()}`;
-    const header = dialogOptions.message || 'Windows Confirm Dialog .';
+    const header = dialogOptions.message || 'Windows Confirm Dialog !';
     const body = dialogOptions.detail || 'Click continue to proceed ..';
 
 
@@ -69,124 +69,122 @@ const showConfirmDialog = (dialogOptions = {}) => {
 
 };
 
+// const { BrowserWindow } = require('electron');
+// 
+const getCallerWindow = (webContents) => {
 
+    const allWindows = BrowserWindow.getAllWindows();
+    for (const win of allWindows) {
+        if (win.webContents.id === webContents.id) {
+            return win;
+        }
+    }
+    return null;
+};
+
+
+const tryToGetParent = () => {
+
+    return BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0] || null;
+};
 
 const showLoadingDialog = async (dialogObj = {}) => {
 
-    const { openWindows } = await import('get-windows');
 
     const width = 440, height = 230;
     const pageStyle = dialogObj.pageStyle || 'vista';
-    const perentDIalog = dialogObj.parentTitle || false;
     const loadingMsg = dialogObj.loadingMsg || 'loading ..';
+
+    const rootWindow = dialogObj.parentWindow || tryToGetParent();
+    log('rootWindow', rootWindow);
 
     const preload = join(__dirname, `pages/loading/${pageStyle}/preload.js`);
     const icon = join(__dirname, `pages/loading/${pageStyle}/misc/icon.ico`);
 
-
     return new Promise(resolve => {
 
-        const allWindows = BrowserWindow.getAllWindows();
-        const parentWin = allWindows.find(win => win.title === dialogObj.parentTitle);
+        Menu.setApplicationMenu(null);
 
         const mainWindow = new BrowserWindow({
 
-            title: 'loadingDialog',
+            title: 'loadingDialog', icon,
             roundedCorners: true, show: false,
             resizable: false, maximizable: false,
-            modal: perentDIalog, parent: parentWin,
-            width, height, frame: false, icon, center: true,
+            modal: Boolean(rootWindow), parent: rootWindow,
             alwaysOnTop: true, skipTaskbar: false, hasShadow: true,
+            width, height, frame: false, center: true, modal: true,
             webPreferences: {
                 sandbox: false, nodeIntegration: true, preload,
                 additionalArguments: ["--dialogArg=" + JSON.stringify({ loadingMsg })],
             }
         });
 
-        mainWindow.setProgressBar(2);
-        mainWindow.loadFile(join(__dirname, `pages/loading/${pageStyle}/index.html`));
 
+        setTimeout(() => {
+
+            if (!mainWindow.isFocused()) {
+
+                mainWindow.flashFrame(true);
+            }
+        }, 5000);
+
+        mainWindow.loadFile(join(__dirname, `pages/loading/${pageStyle}/index.html`));
 
         mainWindow.webContents.on('did-finish-load', async () => {
 
-            const rootWindow = mainWindow.getParentWindow();
 
-            if (!rootWindow) {
+            if (rootWindow && !rootWindow?.isDestroyed()) {
 
-                //  parent window is pass ? 
-                //  set the dialogWindow on the top of the parent, or in separate one ..
-                mainWindow.setParentWindow(null);
-                mainWindow.setAppDetails({
-                    appIconPath: icon,
-                    appId: 'dialog.loading.' + pageStyle + '.' + Date.now()
-                });
+                rootWindow.setProgressBar(2);
+                rootWindow.setOverlayIcon(icon, '..');
             };
 
-
-            if (!rootWindow?.isDestroyed()) {
-
-                const allOpenWindows = await openWindows();
-                const fromOpenWindow = allOpenWindows.find(win => win.title === dialogObj.parentTitle);
-
-                if (fromOpenWindow) {
-
-                    console.log(`Active Window Title : ${fromOpenWindow.title}`);
-                    console.log(`Executable Path ( EXE ) : ${fromOpenWindow.owner.path}`);
-
-                    process.env.parentIconPath = extractFromExe(fromOpenWindow.owner.path);
-                    const icoHere = nativeImage.createFromPath(process.env.parentIconPath);
-
-                    rootWindow.setIcon(icon);
-                    rootWindow.setProgressBar(3);
-                    rootWindow.setOverlayIcon(icoHere, '..');
-
-                };
-
-                if (dialogObj.parentTitle && !fromOpenWindow) {
-
-                    console.warn('Expected to get root Window !');
-                    console.warn('Set the dialogWindow in separate Window .. ');
-                    console.warn('The parentTitle was passed and find it via BrowserWindow .. ');
-                };
-
-            };
-
+            let timeout = null;
             mainWindow.show();
             mainWindow.focus();
             mainWindow.setAlwaysOnTop(true);
+            mainWindow.mergeAllWindows()
 
 
-            const closeLoadDialog = () => {
+            const closeDialog = () => {
 
-                if (mainWindow && !mainWindow.isDestroyed()) {
-                    mainWindow.close();
+                clearTimeout(timeout);
 
-                };
+                const rootWindow = mainWindow?.getParentWindow();
 
                 if (rootWindow && !rootWindow.isDestroyed()) {
 
-                    const pathIco = process.env.parentIconPath;
-                    rootWindow.setIcon(pathIco);
-                    rootWindow.setProgressBar(0);
+                    rootWindow.setProgressBar(-1);
+
+                    rootWindow.setAlwaysOnTop(false);
                     rootWindow.setOverlayIcon(null, '..');
-                }
+
+                };
+
+                if (mainWindow && !mainWindow.isDestroyed()) {
+
+                    mainWindow.destroy();
+                };
             };
 
-            resolve({ closeLoadDialog });
-            dialogObj.timeOut && setTimeout(closeLoadDialog, dialogObj.timeOut);
+            resolve({ closeDialog });
+
+            timeout = dialogObj.timeOut && setTimeout(closeDialog, dialogObj.timeOut);
+
+            mainWindow.on('close', closeDialog);
+        });
 
 
-            mainWindow.on('closed', () => {
+        mainWindow.webContents.on('did-fail-load', () => {
 
-                closeLoadDialog();
-                mainWindow.removeAllListeners();
-            });
-
+            console.error('Failed to load the dialog .. ');
+            mainWindow?.destroy();
         });
 
     });
 };
 
+// const preventClose = (win) => {
 
 module.exports = { showConfirmDialog, showLoadingDialog };
 
