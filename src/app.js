@@ -7,7 +7,17 @@ const { BrowserWindow, screen, ipcMain, Menu } = require('electron');
 const { log } = require('console');
 
 
+
+
+const tryToGetParent = () => {
+
+    return BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0] || null;
+};
+
+
 const showConfirmDialog = (dialogOptions = {}) => {
+
+    const rootWindow = dialogOptions.parentWindow || tryToGetParent();
 
     const title = dialogOptions.title || 'Information';
     const pageStyle = dialogOptions.pageStyle || 'vista';
@@ -23,9 +33,11 @@ const showConfirmDialog = (dialogOptions = {}) => {
     return new Promise((resolve) => {
 
         const mainWindow = new BrowserWindow({
+
             width, height, alwaysOnTop: true,
-            roundedCorners: true, show: false,
             resizable: false, maximizable: false, icon,
+            modal: Boolean(rootWindow), parent: rootWindow,
+            roundedCorners: true, show: false, center: true,
             frame: false, hasShadow: true, title: pageStyle,
             webPreferences: {
                 sandbox: false, nodeIntegration: true, preload,
@@ -37,66 +49,47 @@ const showConfirmDialog = (dialogOptions = {}) => {
 
         mainWindow.loadFile(join(__dirname, `pages/confirm/${pageStyle}/index.html`));
 
-        const workAreaSize = screen.getPrimaryDisplay().workAreaSize;
-        const screenWidth = workAreaSize.width, screenHeight = workAreaSize.height;
-
-        mainWindow.setBounds({
-            x: Math.round((screenWidth - width) / 2),
-            y: Math.round((screenHeight - height) / 2)
-        });
-
         mainWindow.webContents.on('did-finish-load', () => {
 
             process.env.dialogTest && mainWindow.webContents.openDevTools({ mode: 'undocked' });
             mainWindow.show();
+            mainWindow.focus();
         });
-
 
         ipcMain.handle(windowsId, (_, { clickOn }) => {
 
+            if (mainWindow && !mainWindow.isDestroyed()) {
 
-            if (!mainWindow.isDestroyed()) {
-                mainWindow.close();
+                ipcMain.removeHandler(windowsId);
+                mainWindow.destroy();
             };
 
-            ipcMain.removeHandler(windowsId);
             resolve(clickOn);
-
         });
+
+
+        
+        // setTimeout(() => {
+
+            // if (!mainWindow.isFocused()) {
+
+                // mainWindow.flashFrame(true);
+            // }
+        // }, 3000);
 
     });
 
 
 };
 
-// const { BrowserWindow } = require('electron');
-// 
-const getCallerWindow = (webContents) => {
-
-    const allWindows = BrowserWindow.getAllWindows();
-    for (const win of allWindows) {
-        if (win.webContents.id === webContents.id) {
-            return win;
-        }
-    }
-    return null;
-};
-
-
-const tryToGetParent = () => {
-
-    return BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0] || null;
-};
 
 const showLoadingDialog = async (dialogObj = {}) => {
-
 
     const width = 440, height = 230;
     const pageStyle = dialogObj.pageStyle || 'vista';
     const loadingMsg = dialogObj.loadingMsg || 'loading ..';
 
     const rootWindow = dialogObj.parentWindow || tryToGetParent();
-    log('rootWindow', rootWindow);
 
     const preload = join(__dirname, `pages/loading/${pageStyle}/preload.js`);
     const icon = join(__dirname, `pages/loading/${pageStyle}/misc/icon.ico`);
@@ -110,9 +103,9 @@ const showLoadingDialog = async (dialogObj = {}) => {
             title: 'loadingDialog', icon,
             roundedCorners: true, show: false,
             resizable: false, maximizable: false,
+            width, height, frame: false, center: true,
             modal: Boolean(rootWindow), parent: rootWindow,
             alwaysOnTop: true, skipTaskbar: false, hasShadow: true,
-            width, height, frame: false, center: true, modal: true,
             webPreferences: {
                 sandbox: false, nodeIntegration: true, preload,
                 additionalArguments: ["--dialogArg=" + JSON.stringify({ loadingMsg })],
@@ -140,6 +133,7 @@ const showLoadingDialog = async (dialogObj = {}) => {
             };
 
             let timeout = null;
+
             mainWindow.show();
             mainWindow.focus();
             mainWindow.setAlwaysOnTop(true);
