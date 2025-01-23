@@ -137,10 +137,9 @@ const showLoadingDialog = async (dialogObj = {}) => {
             mainWindow.show();
             mainWindow.focus();
             mainWindow.setAlwaysOnTop(true);
-            mainWindow.mergeAllWindows()
 
 
-            const closeDialog = () => {
+            const closeLoadDialog = () => {
 
                 clearTimeout(timeout);
 
@@ -161,11 +160,11 @@ const showLoadingDialog = async (dialogObj = {}) => {
                 };
             };
 
-            resolve({ closeDialog });
+            resolve({ closeLoadDialog });
 
-            timeout = dialogObj.timeOut && setTimeout(closeDialog, dialogObj.timeOut);
+            timeout = dialogObj.timeOut && setTimeout(closeLoadDialog, dialogObj.timeOut);
 
-            mainWindow.on('close', closeDialog);
+            mainWindow.on('close', closeLoadDialog);
         });
 
 
