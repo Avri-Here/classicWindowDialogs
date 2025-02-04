@@ -3,8 +3,7 @@
 
 require('./utils/conf');
 const { join } = require('path');
-const { BrowserWindow, screen, ipcMain, Menu } = require('electron');
-const { log } = require('console');
+const { BrowserWindow, ipcMain, Menu } = require('electron');
 
 
 
@@ -66,16 +65,6 @@ const showConfirmDialog = (dialogOptions = {}) => {
 
             resolve(clickOn);
         });
-
-
-        
-        // setTimeout(() => {
-
-            // if (!mainWindow.isFocused()) {
-
-                // mainWindow.flashFrame(true);
-            // }
-        // }, 3000);
 
     });
 
@@ -178,7 +167,6 @@ const showLoadingDialog = async (dialogObj = {}) => {
     });
 };
 
-// const preventClose = (win) => {
 
 module.exports = { showConfirmDialog, showLoadingDialog };
 
