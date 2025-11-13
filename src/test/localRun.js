@@ -1,8 +1,8 @@
 
 
 
-const { app } = require('electron');
-const { showConfirmDialog } = require('../app');
+// const { app } = require('electron');
+// const { showConfirmDialog } = require('../app');
 // const { showConfirmDialog } = require('electron-classic-window-dialog');
 
 
