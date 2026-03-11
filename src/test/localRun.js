@@ -38,9 +38,11 @@ for (let index = 0; index < array.length; index++) {
         mainWindow.webContents.on('did-finish-load', async () => {
 
             mainWindow.show();
-            mainWindow.focus();
-            mainWindow.setAlwaysOnTop(true);
-            mainWindow.setTitle('mainWindowCall');
+
+            const mainWin = mainWindow;
+            mainWin.focus();
+            mainWin.setAlwaysOnTop(true);
+            mainWin.setTitle('mainWinCall');
 
             const confirmDialog = {
                 pageStyle: 'vista',
