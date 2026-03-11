@@ -1,17 +1,19 @@
 
 
 
+
 // const { app } = require('electron');
 // const { showConfirmDialog } = require('../app');
 // const { showConfirmDialog } = require('electron-classic-window-dialog');
+
+const logger = console;
+
 
 
 
 for (let index = 0; index < array.length; index++) {
     const element = array[index];
-
-    console.log(element);
-    
+    logger.log(element);
 }
 
 
@@ -52,7 +54,7 @@ for (let index = 0; index < array.length; index++) {
             };
 
             const confirmDialogRes = await showConfirmDialog(confirmDialog);
-            console.log(confirmDialogRes);
+            logger.log(confirmDialogRes);
 
         });
 
@@ -60,7 +62,7 @@ for (let index = 0; index < array.length; index++) {
 
     } catch (e) {
 
-        console.error(e);
+        logger.error(e);
 
     };
 
@@ -145,7 +147,7 @@ for (let index = 0; index < array.length; index++) {
 
 //     } catch (e) {
 
-//         console.error(e);
+//         logger.error(e);
 
 //     };
 
