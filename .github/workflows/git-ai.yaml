@@ -1,6 +1,7 @@
 name: Git AI
 
 on:
+  push:
   pull_request:
     types: [closed]
 
