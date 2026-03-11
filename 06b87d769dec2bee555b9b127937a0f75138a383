@@ -1,0 +1,23 @@
+.npmrc
+  8f62bc9391ed4b5a 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.10",
+  "base_commit_sha": "06b87d769dec2bee555b9b127937a0f75138a383",
+  "prompts": {
+    "8f62bc9391ed4b5a": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "fc676283-8f45-46c9-8f6c-5b83121fb65e",
+        "model": "copilot/gpt-4.1"
+      },
+      "human_author": "avriFromHome <yoti>",
+      "messages": [],
+      "total_additions": 3,
+      "total_deletions": 3,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}
