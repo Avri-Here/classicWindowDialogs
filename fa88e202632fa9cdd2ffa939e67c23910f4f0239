@@ -1,0 +1,23 @@
+src/test/localRun.js
+  6374fc477d1f48b0 43-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.10",
+  "base_commit_sha": "fa88e202632fa9cdd2ffa939e67c23910f4f0239",
+  "prompts": {
+    "6374fc477d1f48b0": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "c780c431-9fdc-404d-96c6-a2bc3d8ec7ff",
+        "model": "copilot/gpt-4.1"
+      },
+      "human_author": "avriFromHome <yoti>",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 4,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    }
+  }
+}
