@@ -1,0 +1,93 @@
+name: Git AI Stats
+
+on:
+  push:
+    branches: ['**']
+
+jobs:
+  ai-stats:
+    name: AI Authorship Report
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (with full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install git-ai
+        run: curl -sSL https://usegitai.com/install.sh | bash
+
+      - name: Fetch git notes (AI authorship data)
+        run: |
+          git fetch origin refs/notes/*:refs/notes/* || echo "No notes found on remote"
+
+      - name: Run AI Stats
+        id: stats
+        run: |
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.event.after }}"
+
+          # Handle first push to branch (before is all zeros)
+          if [[ "$BEFORE" == "0000000000000000000000000000000000000000" ]]; then
+            BEFORE="4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+          fi
+
+          echo "📊 Analyzing commits: $BEFORE..$AFTER"
+          echo ""
+
+          # Run stats and capture output
+          STATS_JSON=$(git-ai stats "$BEFORE..$AFTER" --json 2>/dev/null || echo "{}")
+
+          if [[ "$STATS_JSON" == "{}" ]]; then
+            echo "⚠️  No git-ai data found for this push range."
+            echo "   Make sure developers have git-ai installed locally with prompt_storage=notes"
+            exit 0
+          fi
+
+          echo "Raw JSON:"
+          echo "$STATS_JSON" | python3 -m json.tool
+
+          echo ""
+          echo "========================================"
+          echo "           AI AUTHORSHIP SUMMARY        "
+          echo "========================================"
+
+          echo "$STATS_JSON" | python3 -c "
+          import sys, json
+
+          data = json.load(sys.stdin)
+
+          human     = data.get('human_additions', 0)
+          ai        = data.get('ai_additions', 0)
+          mixed     = data.get('mixed_additions', 0)
+          accepted  = data.get('ai_accepted', 0)
+          total     = data.get('git_diff_added_lines', 0)
+          wait_s    = data.get('time_waiting_for_ai', 0)
+
+          if total == 0:
+              ai_pct = 0
+              human_pct = 0
+          else:
+              ai_pct    = round(ai / total * 100, 1)
+              human_pct = round(human / total * 100, 1)
+
+          print(f'  Total lines added : {total}')
+          print(f'  Human lines       : {human} ({human_pct}%)')
+          print(f'  AI lines          : {ai} ({ai_pct}%)')
+          print(f'  Mixed (AI+edited) : {mixed}')
+          print(f'  AI accepted as-is : {accepted}')
+          print(f'  Time waiting AI   : {wait_s}s')
+          print()
+
+          breakdown = data.get('tool_model_breakdown', {})
+          if breakdown:
+              print('  Per tool/model breakdown:')
+              for tool_model, m in breakdown.items():
+                  print(f'    [{tool_model}]')
+                  print(f'      AI additions : {m.get(\"ai_additions\", 0)}')
+                  print(f'      AI accepted  : {m.get(\"ai_accepted\", 0)}')
+                  print(f'      Wait time    : {m.get(\"time_waiting_for_ai\", 0)}s')
+          "
+
+          echo "========================================"
