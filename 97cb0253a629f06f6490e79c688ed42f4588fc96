@@ -1,0 +1,73 @@
+src/app.js
+  6188ede2a88c4348 7-9,11-13,15-17,19-20,23-25,36-37,54,57,59,79-80,105,121-125
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.10",
+  "base_commit_sha": "97cb0253a629f06f6490e79c688ed42f4588fc96",
+  "prompts": {
+    "6188ede2a88c4348": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "89743925-2db9-4b9d-b54d-29454cd1120a",
+        "model": "copilot/auto"
+      },
+      "human_author": "avriFromHome <yoti>",
+      "messages": [
+        {
+          "type": "user",
+          "text": "edit",
+          "timestamp": "2026-03-11T20:05:37.489+00:00"
+        },
+        {
+          "type": "tool_use",
+          "name": "copilot_readFile",
+          "input": "Reading [](file:///c%3A/Users/Ghost/Documents/avriWorkHere/classicWindowDialogs/src/app.js)"
+        },
+        {
+          "type": "tool_use",
+          "name": "copilot_replaceString",
+          "input": "Replacing 167 lines with 140 lines in [](file:///c%3A/Users/Ghost/Documents/avriWorkHere/classicWindowDialogs/src/app.js)"
+        },
+        {
+          "type": "tool_use",
+          "name": "textEditGroup",
+          "input": {
+            "done": true,
+            "edits": [
+              [
+                {
+                  "range": {
+                    "endColumn": 1,
+                    "endLineNumber": 168,
+                    "startColumn": 1,
+                    "startLineNumber": 4
+                  },
+                  "text": "const { join } = require('path');\r\nconst { BrowserWindow, ipcMain, Menu } = require('electron');\r\n\r\nconst tryToGetParent = () => {\r\n    return BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0] || null;\r\n};\r\n\r\nconst getDialogPath = (type, style, file) => {\r\n    return join(__dirname, `pages/${type}/${style}/${file}`);\r\n};\r\n\r\nconst getDialogIcon = (type, style) => {\r\n    return getDialogPath(type, style, 'misc/icon.ico');\r\n};\r\n\r\nconst getDialogPreload = (type, style) => {\r\n    return getDialogPath(type, style, 'preload.js');\r\n};\r\n\r\nconst getDialogHtml = (type, style) => {\r\n    return getDialogPath(type, style, 'index.html');\r\n};\r\n\r\nconst showConfirmDialog = (dialogOptions = {}) => {\r\n    const rootWindow = dialogOptions.parentWindow || tryToGetParent();\r\n    const title = dialogOptions.title || 'Information';\r\n    const pageStyle = dialogOptions.pageStyle || 'vista';\r\n    const windowsId = `dialogWin${Date.now()}_${Math.random()}`;\r\n    const header = dialogOptions.message || 'Windows Confirm Dialog !';\r\n    const body = dialogOptions.detail || 'Click continue to proceed ..';\r\n\r\n    const width = 455, height = 213;\r\n    const icon = getDialogIcon('confirm', pageStyle);\r\n    const preload = getDialogPreload('confirm', pageStyle);\r\n\r\n    return new Promise((resolve) => {\r\n        const mainWindow = new BrowserWindow({\r\n            width, height, alwaysOnTop: true,\r\n            resizable: false, maximizable: false, icon,\r\n            modal: Boolean(rootWindow), parent: rootWindow,\r\n            roundedCorners: true, show: false, center: true,\r\n            frame: false, hasShadow: true, title: pageStyle,\r\n            webPreferences: {\r\n                sandbox: false, nodeIntegration: true, preload,\r\n                additionalArguments: [\"--dialogArg=\" + JSON.stringify({\r\n                    windowsId, title, header, body\r\n                })]\r\n            }\r\n        });\r\n\r\n        mainWindow.loadFile(getDialogHtml('confirm', pageStyle));\r\n\r\n        mainWindow.webContents.on('did-finish-load', () => {\r\n            if (process.env.dialogTest) {\r\n                mainWindow.webContents.openDevTools({ mode: 'undocked' });\r\n            }\r\n            mainWindow.show();\r\n            mainWindow.focus();\r\n        });\r\n\r\n        ipcMain.handle(windowsId, (_, { clickOn }) => {\r\n            if (mainWindow && !mainWindow.isDestroyed()) {\r\n                ipcMain.removeHandler(windowsId);\r\n                mainWindow.destroy();\r\n            }\r\n            resolve(clickOn);\r\n        });\r\n    });\r\n};\r\n\r\nconst showLoadingDialog = async (dialogObj = {}) => {\r\n    const width = 440, height = 230;\r\n    const pageStyle = dialogObj.pageStyle || 'vista';\r\n    const loadingMsg = dialogObj.loadingMsg || 'loading ..';\r\n    const rootWindow = dialogObj.parentWindow || tryToGetParent();\r\n    const preload = getDialogPreload('loading', pageStyle);\r\n    const icon = getDialogIcon('loading', pageStyle);\r\n\r\n    return new Promise(resolve => {\r\n        Menu.setApplicationMenu(null);\r\n\r\n        const mainWindow = new BrowserWindow({\r\n            title: 'loadingDialog', icon,\r\n            roundedCorners: true, show: false,\r\n            resizable: false, maximizable: false,\r\n            width, height, frame: false, center: true,\r\n            modal: Boolean(rootWindow), parent: rootWindow,\r\n            alwaysOnTop: true, skipTaskbar: false, hasShadow: true,\r\n            webPreferences: {\r\n                sandbox: false, nodeIntegration: true, preload,\r\n                additionalArguments: [\"--dialogArg=\" + JSON.stringify({ loadingMsg })],\r\n            }\r\n        });\r\n\r\n        setTimeout(() => {\r\n            if (!mainWindow.isFocused()) {\r\n                mainWindow.flashFrame(true);\r\n            }\r\n        }, 5000);\r\n\r\n        mainWindow.loadFile(getDialogHtml('loading', pageStyle));\r\n\r\n        mainWindow.webContents.on('did-finish-load', async () => {\r\n            if (rootWindow && !rootWindow.isDestroyed()) {\r\n                rootWindow.setProgressBar(2);\r\n                rootWindow.setOverlayIcon(icon, '..');\r\n            }\r\n\r\n            let timeout = null;\r\n\r\n            mainWindow.show();\r\n            mainWindow.focus();\r\n            mainWindow.setAlwaysOnTop(true);\r\n\r\n            const closeLoadDialog = () => {\r\n                clearTimeout(timeout);\r\n                const parentWindow = mainWindow?.getParentWindow();\r\n                if (parentWindow && !parentWindow.isDestroyed()) {\r\n                    parentWindow.setProgressBar(-1);\r\n                    parentWindow.setAlwaysOnTop(false);\r\n                    parentWindow.setOverlayIcon(null, '..');\r\n                }\r\n                if (mainWindow && !mainWindow.isDestroyed()) {\r\n                    mainWindow.destroy();\r\n                }\r\n            };\r\n\r\n            resolve({ closeLoadDialog });\r\n            timeout = dialogObj.timeOut && setTimeout(closeLoadDialog, dialogObj.timeOut);\r\n            mainWindow.on('close', closeLoadDialog);\r\n        });\r\n\r\n        mainWindow.webContents.on('did-fail-load', () => {\r\n            console.error('Failed to load the dialog .. ');\r\n            mainWindow?.destroy();\r\n        });\r\n    });\r\n};"
+                }
+              ],
+              []
+            ],
+            "kind": "textEditGroup",
+            "uri": {
+              "$mid": 1,
+              "_sep": 1,
+              "external": "file:///c%3A/Users/Ghost/Documents/avriWorkHere/classicWindowDialogs/src/app.js",
+              "fsPath": "c:\\Users\\Ghost\\Documents\\avriWorkHere\\classicWindowDialogs\\src\\app.js",
+              "path": "/c:/Users/Ghost/Documents/avriWorkHere/classicWindowDialogs/src/app.js",
+              "scheme": "file"
+            }
+          }
+        },
+        {
+          "type": "assistant",
+          "text": "``` @c:\\Users\\Ghost\\Documents\\avriWorkHere\\classicWindowDialogs\\src\\app.js ```"
+        }
+      ],
+      "total_additions": 34,
+      "total_deletions": 61,
+      "accepted_lines": 27,
+      "overriden_lines": 0
+    }
+  }
+}
