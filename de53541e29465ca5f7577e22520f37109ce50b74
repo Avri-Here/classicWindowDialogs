@@ -1,0 +1,23 @@
+.npmrc
+  57f22ebd789a5c9e 1-2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.10",
+  "base_commit_sha": "de53541e29465ca5f7577e22520f37109ce50b74",
+  "prompts": {
+    "57f22ebd789a5c9e": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "6cc2808a-e4b0-44ae-8280-f3611ff92b49",
+        "model": "copilot/claude-haiku-4.5"
+      },
+      "human_author": "avriFromHome <yoti>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 0,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}
