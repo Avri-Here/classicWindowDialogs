@@ -78,6 +78,7 @@ const showLoadingDialog = async (dialogObj = {}) => {
     const rootWindow = dialogObj.parentWindow || tryToGetParent();
     const preload = getDialogPreload('loading', pageStyle);
     const icon = getDialogIcon('loading', pageStyle);
+    const flashDelay = dialogObj.flashDelay || 6000;
 
     return new Promise(resolve => {
         Menu.setApplicationMenu(null);
@@ -97,10 +98,10 @@ const showLoadingDialog = async (dialogObj = {}) => {
         });
 
         setTimeout(() => {
-            if (!mainWindow.isFocused()) {
+            if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isFocused()) {
                 mainWindow.flashFrame(true);
             }
-        }, 5000);
+        }, flashDelay);
 
         mainWindow.loadFile(getDialogHtml('loading', pageStyle));
 

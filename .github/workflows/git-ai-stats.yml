@@ -56,7 +56,8 @@ jobs:
           echo "$STATS_JSON" | python3 -c "
           import sys, json
 
-          data = json.load(sys.stdin)
+          raw = json.load(sys.stdin)
+          data = raw.get('range_stats', raw)  # support both flat and nested format
 
           human     = data.get('human_additions', 0)
           ai        = data.get('ai_additions', 0)
